@@ -85,7 +85,7 @@ function App() {
   ];
 
   useEffect(() => {
-    const generateQuestion = async () => {
+    const generateQuestion = async (): Promise<void | null> => {
       try {
         console.log("Fetch!");
 
@@ -102,8 +102,12 @@ function App() {
         const { data } = await axios.post("https://apifreellm.com/api/chat", {
           message: systemPrompt,
         });
-        const interaction = {
-          originalQuestion: questions[currentQIndex],
+
+        const question = questions[currentQIndex];
+        if (!question) return null;
+
+        const interaction: Interaction = {
+          originalQuestion: question,
           aiQuestion: data.response,
           answer: "",
         };
@@ -123,6 +127,9 @@ function App() {
     try {
       const currentConvoIndex =
         conversation.length > 0 ? conversation.length - 1 : 0;
+
+      if (!conversation[currentConvoIndex]) return;
+      if (!questions[currentQIndex]) return;
 
       const newConvo = conversation.map(
         (interaction: Interaction, index: number) =>
